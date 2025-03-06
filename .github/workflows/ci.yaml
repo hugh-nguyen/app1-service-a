@@ -1,0 +1,65 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  get_latest_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      latest_tag: ${{ steps.get_tag.outputs.latest_tag }}
+    steps:
+      - name: Get Latest Tag
+        id: get_tag
+        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/get_latest_tag@main
+
+  bump_version:
+    needs: get_latest_tag
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.bump.outputs.new_tag }}
+    steps:
+      - name: Bump Version
+        id: bump
+        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/bump_version@main
+        with:
+          latest_tag: ${{ needs.get_latest_tag.outputs.latest_tag }}
+
+  build:
+    needs: bump_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build (Stub)
+        run: |
+          echo "Building Artifact..."
+          echo "Using tag: ${{ needs.bump_version.outputs.new_tag }}"
+
+      - name: Upload Artifact (Stub)
+        run: |
+          echo "Uploading Artifact..."
+          echo "Using tag: ${{ needs.bump_version.outputs.new_tag }}"
+
+  tag_commit:
+    needs: 
+      - build
+      - bump_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag Commit
+        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/tag_commit@main
+        with:
+          new_tag: ${{ needs.bump_version.outputs.new_tag }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
