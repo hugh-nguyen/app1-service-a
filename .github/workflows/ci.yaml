@@ -32,6 +32,8 @@ jobs:
           echo "Building Artifact..."
           echo "Using tag: ${{ needs.bump_version.outputs.new_tag }}"
 
+          docker build -t app1-service-a:${{ needs.bump_version.outputs.new_tag }} .
+
       - name: Upload Artifact (Stub)
         run: |
           echo "Uploading Artifact..."
