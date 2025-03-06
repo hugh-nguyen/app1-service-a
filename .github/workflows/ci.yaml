@@ -1,24 +1,13 @@
 name: CI Workflow
 
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: [new-tag]
 
 permissions:
   contents: write
 
 jobs:
-  bump_version:
-    runs-on: ubuntu-latest
-    outputs:
-      new_tag: ${{ steps.bump.outputs.new_tag }}
-    steps:
-      - name: Bump Version
-        id: bump
-        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/bump_version@main
-        with:
-          latest_tag: ${{ needs.get_latest_tag.outputs.latest_tag }}
 
   build:
     needs: bump_version
@@ -46,15 +35,3 @@ jobs:
           echo "Building image with tag: $TAG"
           docker build -t "$ECR_REPO:$TAG" .
           docker push "$ECR_REPO:$TAG"
-
-  tag_commit:
-    needs: 
-      - bump_version
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Tag Commit
-        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/tag_commit@main
-        with:
-          new_tag: ${{ needs.bump_version.outputs.new_tag }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
