@@ -2,26 +2,15 @@ name: CI Workflow
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - '*'
 
 permissions:
   contents: write
 
 jobs:
-  bump_version:
-    runs-on: ubuntu-latest
-    outputs:
-      new_tag: ${{ steps.bump.outputs.new_tag }}
-    steps:
-      - name: Bump Version
-        id: bump
-        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/bump_version@main
-        with:
-          latest_tag: ${{ needs.get_latest_tag.outputs.latest_tag }}
 
   build:
-    needs: bump_version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -41,20 +30,8 @@ jobs:
       - name: Build Docker Image
         run: |
           ECR_REPO="495599745704.dkr.ecr.ap-southeast-2.amazonaws.com/app1-service-a"
-          TAG="${{ needs.bump_version.outputs.new_tag }}"
+          TAG="${{ github.ref_name }}"
 
           echo "Building image with tag: $TAG"
           docker build -t "$ECR_REPO:$TAG" .
           docker push "$ECR_REPO:$TAG"
-
-  tag_commit:
-    needs: 
-      - bump_version
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Tag Commit
-        uses: hugh-nguyen/cortex-cytoskeleton/.github/actions/tag_commit@main
-        with:
-          new_tag: ${{ needs.bump_version.outputs.new_tag }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
