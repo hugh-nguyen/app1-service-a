@@ -16,7 +16,7 @@ app.get('/a/getresult', async (req: Request, res: Response) => {
   }
 
   try {
-    const response = await axios.get(`http://service-b.default.svc.cluster.local/b/getresult?x=${x}&y=${y}`);
+    const response = await axios.get(`/b/getresult?x=${x}&y=${y}`);
     return res.status(response.status).json(response.data);
   } catch (err: any) {
     console.error("Error calling /b/getresult:", err.message);
