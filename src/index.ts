@@ -27,3 +27,7 @@ app.get('/a/getresult', async (req: Request, res: Response) => {
 app.listen(80, () => {
   console.log('service-a listening on port 80');
 });
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
