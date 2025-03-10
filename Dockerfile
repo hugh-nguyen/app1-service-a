@@ -1,6 +1,11 @@
 FROM node:18-slim
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y \
+    curl \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY package.json package-lock.json tsconfig.json ./
 COPY src/ ./src
 
