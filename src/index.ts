@@ -22,6 +22,6 @@ app.get('/getresult', async (req: Request, res: Response) => {
   }
 });
 
-app.listen(5030, () => {
-  console.log('service-a listening on port 5030');
+app.listen(80, () => {
+  console.log('service-a listening on port 80');
 });
